@@ -1,0 +1,12 @@
+fc2711d60ae9ea19482aa65cbf8ac27c6313bb1d7333f7c8dbc20678b3d1d1ab
+===== ChaCha20 暗号化処理を開始 =====
+[INFO] 入力ファイル: message.txt
+[INFO] 出力ファイル: chacha20.bin
+[INFO] 生成した鍵 (256 bit / hex): 94595466f4101c31a964daff084aca45b8b7534e977e688420adf80db9651b73
+[INFO] 生成したIV (128 bit / hex): 3427654757636688758828156dce288b
+[INFO] 暗号化が完了しました。
+[INFO] 出力ファイル chacha20.bin の作成を確認しました。
+12 message.txt
+12 chacha20.bin
+24 total
+===== ChaCha20 暗号化処理を終了 =====
