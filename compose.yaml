@@ -1,0 +1,96 @@
+services:
+  client: # Docker Compose 上でのサービス名です。`docker compose exec client ...` のように service 名として使います。
+    image: booktls-client # 起動時に使うイメージ名です。build 後、この名前のローカルイメージとして扱われます。
+    container_name: booktls-client # 実際に作成されるコンテナ名を固定します。`docker ps` で見える名前や `docker exec -it booktls-client ...` で使う名前です。
+    hostname: booktls-client # コンテナ内部でのホスト名です。コンテナ内で `hostname` を実行したときにこの名前になります。
+    build:
+      context: ./booktls-client/ # Docker build の対象ディレクトリです。このディレクトリを build コンテキストとして Dockerfile に渡します。
+      dockerfile: Dockerfile # 上の context 配下で使う Dockerfile 名です。通常名ですが、明示することでどの Dockerfile を使うか分かりやすくしています。
+    volumes:
+      - ./share:/share # ホスト側の ./share ディレクトリを、コンテナ側の /share にマウントします。
+                       # これにより、クライアントとサーバの両方で同じファイルを共有できます。
+                       # SSL/TLS 学習では、証明書・秘密鍵・ログ・キャプチャ結果などを共有する用途で便利です。
+    tty: true # 疑似TTYを割り当てます。
+              # これを有効にしておくと、対話的に `docker exec -it` で入ったときや、
+              # コンテナをすぐ終了させずに観察したいときに扱いやすくなります。
+              # 学習用途やデバッグ用途ではよく使われます。
+    cap_add:
+      - NET_ADMIN # Linux capability の NET_ADMIN を追加します。
+                  # これはネットワーク設定変更に関する権限であり、
+                  # ルーティング変更、iptables 操作、インターフェース設定などが可能になります。
+                  # SSL/TLS 実験で tc や iptables を触る場合に必要になることがあります。
+                  # ただし権限が強いため、本番では最小権限原則の観点から本当に必要か確認すべきです。
+    networks:
+      compose-link:
+        ipv4_address: 172.30.0.2 # このコンテナに固定IPを割り当てています。
+                                 # クライアント側は 172.30.0.2 です。
+                                 # 学習用途では、通信相手を IP で固定して把握しやすくなる利点があります。
+                                 # ただし、実運用ではサービス名による名前解決を使うことも多く、
+                                 # 固定IP運用は構成変更に弱くなる場合があります。
+
+  server: # こちらはサーバ役のサービスです。nginx や OpenSSL サーバなどを立てる想定だと読めます。
+    image: booktls-server # サーバ用イメージ名です。
+    container_name: booktls-server # 実際のコンテナ名を固定します。`docker exec -it booktls-server bash` などで使えます。
+    hostname: booktls-server # コンテナ内部でのホスト名です。
+    build:
+      context: ./booktls-server # サーバ側 Dockerfile の build コンテキストです。
+      dockerfile: Dockerfile # 使用する Dockerfile 名です。
+    volumes:
+      - ./share:/share # クライアント側と同じ共有ディレクトリを /share にマウントしています。
+                       # これにより、サーバで生成した証明書をクライアントから参照したり、
+                       # 逆にクライアントで取ったログをサーバ側から見たりできます。
+                       # SSL/TLS 学習では、CA証明書・サーバ証明書・秘密鍵・CSR などを共有しやすい構成です。
+    cap_add:
+      - NET_ADMIN # サーバ側にも NET_ADMIN を付与しています。
+                  # 例えばパケットフィルタ設定やネットワーク挙動の変更実験が可能になります。
+                  # ただし、不要なら付けない方が安全です。
+    # ports:
+    #   - 80:10080
+    #   - 443:10443
+    #   - 444:10444
+    # 上の ports は現在コメントアウトされています。
+    #
+    # もし有効にすると、左側がホスト側ポート、右側がコンテナ側ポートです。
+    # 例えば `80:10080` は、ホストの 80 番へ来た通信をコンテナの 10080 番へ転送します。
+    #
+    # この設定の意図としては、おそらく server コンテナ内で
+    # - 10080: HTTP
+    # - 10443: HTTPS
+    # - 10444: 別の TLS 検証用ポート
+    # のように待ち受けておき、ホストからは標準的な 80/443 等でアクセスしたい、というものだと考えられます。
+    #
+    # 現状コメントアウトされているため、ホスト OS から直接アクセスはしにくく、
+    # 同一 Docker ネットワーク内の client ↔ server 通信を主に想定した構成になっています。
+    #
+    # SSL/TLS 学習では、まずコンテナ間通信だけで閉じて試すのは良い設計です。
+    # ホストへ公開しないことで、不要な外部露出を避けられるためです。
+    networks:
+      compose-link:
+        ipv4_address: 172.30.0.3 # サーバ側の固定IPです。
+                                 # client からは 172.30.0.3 宛に接続できます。
+                                 # 例えば `openssl s_client -connect 172.30.0.3:10443` のような検証を想定しやすいです。
+
+networks:
+  compose-link: # この Compose ファイル内で利用するネットワーク定義です。
+    name: docker.internal # Docker 上で実際に作られるネットワーク名です。
+                          # 明示的に名前を固定することで、Compose プロジェクト名に依存せず同じ名前で扱えます。
+                          # ただし、他の Compose プロジェクトと衝突する可能性があるため注意が必要です。
+    driver: bridge # ブリッジネットワークを使います。
+                   # これは Docker の標準的な仮想ネットワーク方式であり、
+                   # 同じ bridge 上のコンテナ同士は相互通信できます。
+                   # クライアント・サーバ分離の学習環境として扱いやすい構成です。
+    ipam:
+      driver: default # IP アドレス管理 (IP Address Management) に標準ドライバを使います。
+      config:
+        - subnet: "172.30.0.0/24" # このネットワークのアドレス範囲です。
+                                  # /24 なので、172.30.0.1 ～ 172.30.0.254 の範囲が使えます。
+                                  # この中で client に 172.30.0.2、server に 172.30.0.3 を固定割当しています。
+                                  #
+                                  # 学習上の意味:
+                                  # - 通信経路が把握しやすい
+                                  # - 接続先を明示しやすい
+                                  # - パケットキャプチャ結果を読みやすい
+                                  #
+                                  # セキュリティ上の注意:
+                                  # - 固定IPは再現性が高い反面、構成変更時の柔軟性は落ちます
+                                  # - ほかの Docker ネットワークや VPN とサブネットが衝突しないか確認が必要です
