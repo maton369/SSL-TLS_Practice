@@ -1,0 +1,3 @@
+#!/bin/bash
+
+openssl genpkey -algorithm RSA -aes256 -out sample.key -pkeyopt rsa_keygen_bits:2048
