@@ -1,2 +1,2 @@
-TLS1.2 full-handshake: 2099 connections in 31 real seconds
-TLS1.3 full-handshake: 2249 connections in 31 real seconds
+TLS1.2 resumption: 1071 connections in 31 real seconds
+TLS1.3 resumption: 980 connections in 31 real seconds
