@@ -1,0 +1,121 @@
+#!/bin/bash
+
+# このスクリプトは、既存の秘密鍵 `sample.key` を使って
+# CSR（Certificate Signing Request: 証明書署名要求）を作成するためのものです。
+#
+# CSR とは何か:
+# - CA（認証局）に「この公開鍵に対する証明書を発行してください」と依頼するためのデータ
+# - 中には主に次の情報が入ります
+#   - 秘密鍵に対応する公開鍵
+#   - Subject 情報
+#     例: 国名, 組織名, Common Name(CN) など
+#   - 要求者の署名
+#
+# TLS / PKI の流れの中では、CSR 作成は次の位置にあります。
+#
+#   1. 秘密鍵生成
+#   2. CSR 作成   ← このスクリプト
+#   3. CA による署名
+#   4. 証明書発行
+#   5. nginx や Apache などへ配置
+#
+
+
+# エラーが起きた時点でスクリプトを停止する設定です。
+# -e : いずれかのコマンドが失敗したら終了
+# -u : 未定義変数の利用をエラーにする
+# -o pipefail : パイプ中の失敗も検知する
+set -euo pipefail
+
+
+# 入力となる秘密鍵ファイルです。
+# これは事前に `openssl genpkey` などで生成しておく必要があります。
+KEY_FILE="sample.key"
+
+# 出力する CSR ファイル名です。
+# 生成後、このファイルを CA に渡したり、
+# `openssl req -in sample.csr -text -noout` で内容確認したりできます。
+CSR_FILE="sample.csr"
+
+
+# 入力の秘密鍵ファイルが存在するか確認します。
+# これを先に行うことで、単に OpenSSL が失敗するよりも原因を明確にできます。
+if [[ ! -f "${KEY_FILE}" ]]; then
+  echo "[ERROR] 秘密鍵ファイル ${KEY_FILE} が存在しません。"
+  echo "[INFO] 先に秘密鍵を生成してください。"
+  exit 1
+fi
+
+
+# openssl req
+# CSR や証明書を扱う OpenSSL のコマンドです。
+#
+# -new
+#   新しい CSR を作成することを意味します。
+#
+# -key "${KEY_FILE}"
+#   CSR に使う秘密鍵を指定します。
+#   OpenSSL はこの秘密鍵に対応する公開鍵情報を CSR に埋め込み、
+#   さらに要求内容に対して署名を行います。
+#
+# -out "${CSR_FILE}"
+#   作成した CSR を保存する出力先ファイルです。
+#
+# 実行時の挙動:
+# - 通常は対話的に Subject 情報の入力を求められます。
+#   例:
+#   - Country Name
+#   - State or Province Name
+#   - Locality Name
+#   - Organization Name
+#   - Organizational Unit Name
+#   - Common Name
+#   - Email Address
+#
+# もし `sample.key` がパスフレーズ付きで暗号化されている場合は、
+# 先に秘密鍵のパスフレーズ入力も求められます。
+#
+# Common Name (CN) の注意:
+# - Web サーバ証明書用途では、CN や SAN に実際に使うホスト名を入れる必要があります。
+# - ただし、現代の TLS では SAN (Subject Alternative Name) が重要であり、
+#   CN だけでは不十分なことが多いです。
+#
+# つまりこのコマンドは、内部的には次の流れで動きます。
+#
+#   1. 秘密鍵を読み込む
+#   2. 対応する公開鍵を取り出す
+#   3. Subject 情報を受け取る
+#   4. CSR 構造を作る
+#   5. 秘密鍵で署名する
+#   6. sample.csr に保存する
+openssl req \
+  -new \
+  -key "${KEY_FILE}" \
+  -out "${CSR_FILE}"
+
+
+# 生成された CSR ファイルが存在するか確認します。
+if [[ -f "${CSR_FILE}" ]]; then
+  echo "[INFO] CSR ファイル ${CSR_FILE} を生成しました。"
+else
+  echo "[ERROR] CSR ファイル ${CSR_FILE} の生成に失敗しました。"
+  exit 1
+fi
+
+
+# 生成結果の確認方法の例:
+#
+# 1. CSR の内容を人間が読める形で確認する
+#    openssl req -in sample.csr -text -noout
+#
+# 2. CSR の Subject を確認する
+#    openssl req -in sample.csr -noout -subject
+#
+# 3. CSR に含まれる公開鍵情報を確認する
+#    openssl req -in sample.csr -noout -pubkey
+#
+# セキュリティ上の注意:
+# - CSR 自体は秘密鍵そのものではありません。
+# - ただし、組織情報やホスト名などのメタデータを含むため、
+#   不要な公開や誤送信には注意が必要です。
+# - 本番用では SAN を適切に設定した CSR を作ることが重要です。
