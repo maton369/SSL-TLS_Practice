@@ -8,8 +8,18 @@ services:
       dockerfile: Dockerfile # 上の context 配下で使う Dockerfile 名です。通常名ですが、明示することでどの Dockerfile を使うか分かりやすくしています。
     volumes:
       - ./share:/share # ホスト側の ./share ディレクトリを、コンテナ側の /share にマウントします。
-                       # これにより、クライアントとサーバの両方で同じファイルを共有できます。
-                       # SSL/TLS 学習では、証明書・秘密鍵・ログ・キャプチャ結果などを共有する用途で便利です。
+                       # これにより、client / server の両方で同じファイルを共有できます。
+                       # SSL/TLS 学習では、証明書・秘密鍵・ログ・キャプチャ結果などを共通で置く場所として便利です。
+      - ./booktls-client:/work # ここが今回の重要な修正です。
+                               # ホスト側の ./booktls-client ディレクトリを、client コンテナ内の /work にマウントします。
+                               # あなたがローカルで編集している practice.sh は ./booktls-client 配下にあるため、
+                               # ./client-work をマウントしても practice.sh は見えませんでした。
+                               # この設定により、ホスト側で編集した
+                               #   ./booktls-client/practice.sh
+                               # は、コンテナ側で
+                               #   /work/practice.sh
+                               # として見えるようになります。
+                               # つまり、Emacs などでホスト側のファイルを編集し、その内容をコンテナ内でそのまま使えるようになります。
     tty: true # 疑似TTYを割り当てます。
               # これを有効にしておくと、対話的に `docker exec -it` で入ったときや、
               # コンテナをすぐ終了させずに観察したいときに扱いやすくなります。
@@ -40,6 +50,10 @@ services:
                        # これにより、サーバで生成した証明書をクライアントから参照したり、
                        # 逆にクライアントで取ったログをサーバ側から見たりできます。
                        # SSL/TLS 学習では、CA証明書・サーバ証明書・秘密鍵・CSR などを共有しやすい構成です。
+      - ./booktls-server:/work # server 側も同様に、ホストの ./booktls-server をコンテナ内 /work にマウントします。
+                               # これにより、ローカルで server 用の設定ファイルや補助スクリプトを編集すると、
+                               # server コンテナから /work 配下としてそのまま参照できます。
+                               # たとえば nginx.conf の元ファイルや TLS 実験用の補助スクリプトをここから扱えます。
     cap_add:
       - NET_ADMIN # サーバ側にも NET_ADMIN を付与しています。
                   # 例えばパケットフィルタ設定やネットワーク挙動の変更実験が可能になります。

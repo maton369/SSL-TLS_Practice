@@ -1,0 +1,162 @@
+#!/bin/bash
+
+# このスクリプトは、X.509 証明書ファイル `server.crt` の内容を
+# 人間が読める形式で表示するためのものです。
+#
+# `openssl x509` は証明書を扱うための OpenSSL コマンドであり、
+# ここでは PEM 形式または DER 形式の証明書を読み取り、
+# 証明書に含まれる各種メタデータを表示します。
+#
+# 典型的に確認できる情報:
+# - Version
+# - Serial Number
+# - Signature Algorithm
+# - Issuer（発行者）
+# - Validity（有効期限）
+# - Subject（主体）
+# - Subject Public Key Info（公開鍵情報）
+# - X509v3 extensions（SAN, Key Usage, Basic Constraints など）
+# - Signature Value（署名値）
+#
+# SSL/TLS の学習では、このコマンドを使うことで
+# 「証明書の中に何が入っているのか」を確認できます。
+#
+# たとえば次のような用途で使います。
+# - Common Name (CN) が何になっているか確認する
+# - SAN (Subject Alternative Name) が入っているか確認する
+# - 有効期限が切れていないか確認する
+# - 自己署名証明書なのか、CA 署名証明書なのかを確認する
+# - 証明書で使われている公開鍵アルゴリズムや鍵長を確認する
+#
+# 注意:
+# 元のコマンドには `-noout` が付いていません。
+# そのため、`-text` による人間向け表示に加えて、
+# 証明書本体（PEM テキスト）も末尾に出力されます。
+#
+# もし「説明テキストだけ」を表示したいなら、通常は次のようにします。
+#
+#   openssl x509 -in server.crt -text -noout
+#
+# 今回は、元のコマンドの意図を尊重しつつ、
+# あえて `-noout` を付けずにそのまま詳しくコメントしています。
+
+
+# エラーが発生した時点でスクリプトを停止する設定です。
+# -e : いずれかのコマンドが失敗したら終了
+# -u : 未定義変数を使ったらエラー
+# -o pipefail : パイプライン内の失敗も検出
+set -euo pipefail
+
+
+# 解析対象となる証明書ファイルです。
+# 通常は PEM 形式のサーバ証明書を想定しています。
+CERT_FILE="server.crt"
+
+
+# 入力ファイルが存在するかを確認します。
+# 存在しない場合は OpenSSL 側のエラーに任せるのではなく、
+# 分かりやすいメッセージを出して終了します。
+if [[ ! -f "${CERT_FILE}" ]]; then
+  echo "[ERROR] 証明書ファイル ${CERT_FILE} が存在しません。"
+  echo "[INFO] 先に server.crt を用意してください。"
+  exit 1
+fi
+
+
+# openssl x509
+# X.509 証明書を表示・変換・検査するための OpenSSL コマンドです。
+#
+# -in "${CERT_FILE}"
+#   入力ファイルとして server.crt を指定します。
+#   OpenSSL はこのファイルを証明書として読み込みます。
+#
+# -text
+#   証明書の内容を人間が読める形式で表示します。
+#   具体的には、証明書内部のフィールドを整形して表示します。
+#
+# このコマンドで表示される主な構造は次の通りです。
+#
+#   Certificate
+#     ├─ Data
+#     │   ├─ Version
+#     │   ├─ Serial Number
+#     │   ├─ Signature Algorithm
+#     │   ├─ Issuer
+#     │   ├─ Validity
+#     │   │   ├─ Not Before
+#     │   │   └─ Not After
+#     │   ├─ Subject
+#     │   ├─ Subject Public Key Info
+#     │   └─ X509v3 extensions
+#     └─ Signature Algorithm
+#     └─ Signature Value
+#
+# これを図にすると、証明書の概念構造はおおむね次のようになります。
+#
+#   server.crt
+#       ↓
+#   X.509 Certificate
+#       ├─ 発行者 (Issuer)
+#       ├─ 所有者 (Subject)
+#       ├─ 有効期限 (Validity)
+#       ├─ 公開鍵 (Public Key)
+#       ├─ 拡張 (Extensions)
+#       └─ 署名 (Signature)
+#
+# ここで特に重要なのは次の項目です。
+#
+# 1. Issuer
+#    誰がこの証明書を発行したかを示します。
+#    自己署名証明書では Subject と Issuer が同じことが多いです。
+#
+# 2. Subject
+#    この証明書が誰のものかを示します。
+#    サーバ証明書なら CN や SAN にホスト名が入ります。
+#
+# 3. Validity
+#    証明書が有効な期間です。
+#    期限切れ証明書では TLS 接続時にエラーになることがあります。
+#
+# 4. Subject Public Key Info
+#    証明書に含まれる公開鍵情報です。
+#    RSA / ECDSA などのアルゴリズムや鍵長を確認できます。
+#
+# 5. X509v3 extensions
+#    現代の TLS ではここが重要です。
+#    たとえば SAN が無いと、ブラウザやクライアントで
+#    正しくホスト名検証できないことがあります。
+#
+# 元のコマンドでは `-noout` が無いため、
+# `-text` の説明表示のあとに PEM 本文も出力されます。
+# 学習上は「証明書の説明」と「元の証明書本文」の両方を見られるため、
+# それはそれで意味があります。
+openssl x509 \
+  -in "${CERT_FILE}" \
+  -text
+
+
+# 実務・学習でよく併用する確認コマンド例:
+#
+# 1. PEM 本文を出さず、説明だけ見たい
+#    openssl x509 -in server.crt -text -noout
+#
+# 2. Subject だけ見たい
+#    openssl x509 -in server.crt -noout -subject
+#
+# 3. Issuer だけ見たい
+#    openssl x509 -in server.crt -noout -issuer
+#
+# 4. 有効期限だけ見たい
+#    openssl x509 -in server.crt -noout -dates
+#
+# 5. フィンガープリントを見たい
+#    openssl x509 -in server.crt -noout -fingerprint -sha256
+#
+# 6. SAN を確認したい
+#    openssl x509 -in server.crt -text -noout | grep -A 1 "Subject Alternative Name"
+#
+# セキュリティ上の注意:
+# - `server.crt` は通常公開可能な証明書ファイルであり、
+#   `server.key` のような秘密鍵ではありません。
+# - ただし、証明書にはホスト名・組織名・有効期限などの情報が含まれるため、
+#   ログや画面出力を共有する際は用途に応じて注意が必要です。
