@@ -1,0 +1,3 @@
+#!/bin/bash
+
+openssl x509 -req -days 180 -signkey sample.key -in sample.csr -out sample.csr
