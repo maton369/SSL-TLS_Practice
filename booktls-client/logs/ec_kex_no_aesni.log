@@ -1,0 +1,19 @@
+============================================================
+Benchmark started: Fri Mar 13 02:31:06 UTC 2026
+Log file: logs/ec_kex_no_aesni.log
+Command: env OPENSSL_ia32cap=~0x200000200000000 openssl speed ecdhp256 ecdhx25519
+============================================================
+Doing 256 bits  ecdh's for 10s: 110907 256-bits ECDH ops in 9.91s
+Doing 253 bits  ecdh's for 10s: 154134 253-bits ECDH ops in 10.01s
+version: 3.0.12
+built on: Tue Mar 10 03:24:34 2026 UTC
+options: bn(64,64)
+compiler: gcc -fPIC -pthread -m64 -Wa,--noexecstack -Wall -O3 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+CPUINFO: OPENSSL_ia32cap=0xc0da2201478bffff:0x0 env:~0x200000200000000
+                              op      op/s
+ 256 bits ecdh (nistp256)   0.0001s  11191.4
+ 253 bits ecdh (X25519)   0.0001s  15398.0
+
+============================================================
+Benchmark finished: Fri Mar 13 02:31:26 UTC 2026
+============================================================

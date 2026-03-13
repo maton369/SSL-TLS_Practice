@@ -1,0 +1,25 @@
+============================================================
+Benchmark started: Fri Mar 13 02:29:05 UTC 2026
+Log file: logs/ec_sign_high_default.log
+Command: openssl speed ecdsap384 ed448 ecdsap521
+============================================================
+Doing 384 bits sign ecdsa's for 10s: 8568 384 bits ECDSA signs in 9.94s
+Doing 384 bits verify ecdsa's for 10s: 9496 384 bits ECDSA verify in 9.96s
+Doing 521 bits sign ecdsa's for 10s: 24811 521 bits ECDSA signs in 9.99s
+Doing 521 bits verify ecdsa's for 10s: 13186 521 bits ECDSA verify in 9.99s
+Doing 456 bits sign Ed448's for 10s: 25825 456 bits Ed448 signs in 10.00s 
+Doing 456 bits verify Ed448's for 10s: 27923 456 bits Ed448 verify in 10.00s
+version: 3.0.12
+built on: Tue Mar 10 03:24:34 2026 UTC
+options: bn(64,64)
+compiler: gcc -fPIC -pthread -m64 -Wa,--noexecstack -Wall -O3 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+CPUINFO: OPENSSL_ia32cap=0xc2da2203478bffff:0x842509
+                              sign    verify    sign/s verify/s
+ 384 bits ecdsa (nistp384)   0.0012s   0.0010s    862.0    953.4
+ 521 bits ecdsa (nistp521)   0.0004s   0.0008s   2483.6   1319.9
+                              sign    verify    sign/s verify/s
+ 456 bits EdDSA (Ed448)   0.0004s   0.0004s   2582.5   2792.3
+
+============================================================
+Benchmark finished: Fri Mar 13 02:30:05 UTC 2026
+============================================================

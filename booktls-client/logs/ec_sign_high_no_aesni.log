@@ -1,0 +1,25 @@
+============================================================
+Benchmark started: Fri Mar 13 02:31:26 UTC 2026
+Log file: logs/ec_sign_high_no_aesni.log
+Command: env OPENSSL_ia32cap=~0x200000200000000 openssl speed ecdsap384 ed448 ecdsap521
+============================================================
+Doing 384 bits sign ecdsa's for 10s: 8093 384 bits ECDSA signs in 9.98s
+Doing 384 bits verify ecdsa's for 10s: 10007 384 bits ECDSA verify in 10.02s
+Doing 521 bits sign ecdsa's for 10s: 25292 521 bits ECDSA signs in 9.97s
+Doing 521 bits verify ecdsa's for 10s: 12167 521 bits ECDSA verify in 9.97s
+Doing 456 bits sign Ed448's for 10s: 16108 456 bits Ed448 signs in 9.96s 
+Doing 456 bits verify Ed448's for 10s: 16031 456 bits Ed448 verify in 9.97s
+version: 3.0.12
+built on: Tue Mar 10 03:24:34 2026 UTC
+options: bn(64,64)
+compiler: gcc -fPIC -pthread -m64 -Wa,--noexecstack -Wall -O3 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+CPUINFO: OPENSSL_ia32cap=0xc0da2201478bffff:0x0 env:~0x200000200000000
+                              sign    verify    sign/s verify/s
+ 384 bits ecdsa (nistp384)   0.0012s   0.0010s    810.9    998.7
+ 521 bits ecdsa (nistp521)   0.0004s   0.0008s   2536.8   1220.4
+                              sign    verify    sign/s verify/s
+ 456 bits EdDSA (Ed448)   0.0006s   0.0006s   1617.3   1607.9
+
+============================================================
+Benchmark finished: Fri Mar 13 02:32:26 UTC 2026
+============================================================

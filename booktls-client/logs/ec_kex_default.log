@@ -1,0 +1,19 @@
+============================================================
+Benchmark started: Fri Mar 13 02:28:45 UTC 2026
+Log file: logs/ec_kex_default.log
+Command: openssl speed ecdhp256 ecdhx25519
+============================================================
+Doing 256 bits  ecdh's for 10s: 111863 256-bits ECDH ops in 9.75s
+Doing 253 bits  ecdh's for 10s: 161577 253-bits ECDH ops in 9.98s
+version: 3.0.12
+built on: Tue Mar 10 03:24:34 2026 UTC
+options: bn(64,64)
+compiler: gcc -fPIC -pthread -m64 -Wa,--noexecstack -Wall -O3 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+CPUINFO: OPENSSL_ia32cap=0xc2da2203478bffff:0x842509
+                              op      op/s
+ 256 bits ecdh (nistp256)   0.0001s  11473.1
+ 253 bits ecdh (X25519)   0.0001s  16190.1
+
+============================================================
+Benchmark finished: Fri Mar 13 02:29:05 UTC 2026
+============================================================
