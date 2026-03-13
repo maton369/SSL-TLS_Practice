@@ -1,0 +1,22 @@
+============================================================
+Benchmark started: Fri Mar 13 02:30:26 UTC 2026
+Log file: logs/ec_sign_no_aesni.log
+Command: env OPENSSL_ia32cap=~0x200000200000000 openssl speed ecdsap256 ed25519
+============================================================
+Doing 256 bits sign ecdsa's for 10s: 228330 256 bits ECDSA signs in 9.85s
+Doing 256 bits verify ecdsa's for 10s: 84108 256 bits ECDSA verify in 9.97s
+Doing 253 bits sign Ed25519's for 10s: 177447 253 bits Ed25519 signs in 9.99s 
+Doing 253 bits verify Ed25519's for 10s: 56319 253 bits Ed25519 verify in 9.99s
+version: 3.0.12
+built on: Tue Mar 10 03:24:34 2026 UTC
+options: bn(64,64)
+compiler: gcc -fPIC -pthread -m64 -Wa,--noexecstack -Wall -O3 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+CPUINFO: OPENSSL_ia32cap=0xc0da2201478bffff:0x0 env:~0x200000200000000
+                              sign    verify    sign/s verify/s
+ 256 bits ecdsa (nistp256)   0.0000s   0.0001s  23180.7   8436.1
+                              sign    verify    sign/s verify/s
+ 253 bits EdDSA (Ed25519)   0.0001s   0.0002s  17762.5   5637.5
+
+============================================================
+Benchmark finished: Fri Mar 13 02:31:06 UTC 2026
+============================================================
