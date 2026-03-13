@@ -1,0 +1,24 @@
+============================================================
+Benchmark started: Fri Mar 13 01:58:48 UTC 2026
+Log file: logs/aes256gcm_no_aesni.log
+Command: env OPENSSL_ia32cap=~0x200000200000000 openssl speed -elapsed -evp aes-256-gcm -seconds 10
+============================================================
+You have chosen to measure elapsed time instead of user CPU time.
+Doing AES-256-GCM for 10s on 16 size blocks: 52098070 AES-256-GCM's in 10.01s
+Doing AES-256-GCM for 10s on 64 size blocks: 13917426 AES-256-GCM's in 10.00s
+Doing AES-256-GCM for 10s on 256 size blocks: 7852648 AES-256-GCM's in 10.00s
+Doing AES-256-GCM for 10s on 1024 size blocks: 2042016 AES-256-GCM's in 9.99s
+Doing AES-256-GCM for 10s on 8192 size blocks: 257297 AES-256-GCM's in 10.00s
+Doing AES-256-GCM for 10s on 16384 size blocks: 129374 AES-256-GCM's in 10.01s
+version: 3.0.12
+built on: Tue Mar 10 03:24:34 2026 UTC
+options: bn(64,64)
+compiler: gcc -fPIC -pthread -m64 -Wa,--noexecstack -Wall -O3 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+CPUINFO: OPENSSL_ia32cap=0xc0da2201478bffff:0x0 env:~0x200000200000000
+The 'numbers' are in 1000s of bytes per second processed.
+type             16 bytes     64 bytes    256 bytes   1024 bytes   8192 bytes  16384 bytes
+AES-256-GCM      83273.64k    89071.53k   201027.79k   209311.75k   210777.70k   211754.61k
+
+============================================================
+Benchmark finished: Fri Mar 13 01:59:48 UTC 2026
+============================================================
