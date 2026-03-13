@@ -1,0 +1,24 @@
+============================================================
+Benchmark started: Fri Mar 13 01:57:48 UTC 2026
+Log file: logs/aes128gcm_no_aesni.log
+Command: env OPENSSL_ia32cap=~0x200000200000000 openssl speed -elapsed -evp aes-128-gcm -seconds 10
+============================================================
+You have chosen to measure elapsed time instead of user CPU time.
+Doing AES-128-GCM for 10s on 16 size blocks: 65809154 AES-128-GCM's in 9.97s
+Doing AES-128-GCM for 10s on 64 size blocks: 17347270 AES-128-GCM's in 10.14s
+Doing AES-128-GCM for 10s on 256 size blocks: 8801974 AES-128-GCM's in 10.00s
+Doing AES-128-GCM for 10s on 1024 size blocks: 2350762 AES-128-GCM's in 10.00s
+Doing AES-128-GCM for 10s on 8192 size blocks: 303470 AES-128-GCM's in 10.01s
+Doing AES-128-GCM for 10s on 16384 size blocks: 150377 AES-128-GCM's in 10.01s
+version: 3.0.12
+built on: Tue Mar 10 03:24:34 2026 UTC
+options: bn(64,64)
+compiler: gcc -fPIC -pthread -m64 -Wa,--noexecstack -Wall -O3 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+CPUINFO: OPENSSL_ia32cap=0xc0da2201478bffff:0x0 env:~0x200000200000000
+The 'numbers' are in 1000s of bytes per second processed.
+type             16 bytes     64 bytes    256 bytes   1024 bytes   8192 bytes  16384 bytes
+AES-128-GCM     105611.48k   109489.67k   225330.53k   240718.03k   248354.27k   246131.55k
+
+============================================================
+Benchmark finished: Fri Mar 13 01:58:48 UTC 2026
+============================================================

@@ -1,0 +1,24 @@
+============================================================
+Benchmark started: Fri Mar 13 01:56:48 UTC 2026
+Log file: logs/chacha20poly1305_default.log
+Command: openssl speed -elapsed -evp chacha20-poly1305 -seconds 10
+============================================================
+You have chosen to measure elapsed time instead of user CPU time.
+Doing ChaCha20-Poly1305 for 10s on 16 size blocks: 178043077 ChaCha20-Poly1305's in 9.99s
+Doing ChaCha20-Poly1305 for 10s on 64 size blocks: 65412769 ChaCha20-Poly1305's in 10.00s
+Doing ChaCha20-Poly1305 for 10s on 256 size blocks: 31816442 ChaCha20-Poly1305's in 10.00s
+Doing ChaCha20-Poly1305 for 10s on 1024 size blocks: 7884637 ChaCha20-Poly1305's in 10.00s
+Doing ChaCha20-Poly1305 for 10s on 8192 size blocks: 1075033 ChaCha20-Poly1305's in 10.00s
+Doing ChaCha20-Poly1305 for 10s on 16384 size blocks: 535681 ChaCha20-Poly1305's in 10.01s
+version: 3.0.12
+built on: Tue Mar 10 03:24:34 2026 UTC
+options: bn(64,64)
+compiler: gcc -fPIC -pthread -m64 -Wa,--noexecstack -Wall -O3 -DOPENSSL_USE_NODELETE -DL_ENDIAN -DOPENSSL_PIC -DOPENSSL_BUILDING_OPENSSL -DNDEBUG
+CPUINFO: OPENSSL_ia32cap=0xc2da2203478bffff:0x842509
+The 'numbers' are in 1000s of bytes per second processed.
+type             16 bytes     64 bytes    256 bytes   1024 bytes   8192 bytes  16384 bytes
+ChaCha20-Poly1305   285154.08k   418641.72k   814500.92k   807386.83k   880667.03k   876782.97k
+
+============================================================
+Benchmark finished: Fri Mar 13 01:57:48 UTC 2026
+============================================================
